@@ -79,7 +79,7 @@ def main():
     ax.plot(raw_data[:test_steps, 0], raw_data[:test_steps, 1], raw_data[:test_steps, 2], label='Ground Truth', color='blue', alpha=0.6, lw=1)
     ax.plot(predicted_trajectory[:, 0], predicted_trajectory[:, 1], predicted_trajectory[:, 2], label='MLP Prediction', color='red', alpha=0.8, lw=1, linestyle='--')
     
-   ax.set_title("Lorenz Attractor: Ground Truth vs Baseline MLP")
+    ax.set_title("Lorenz Attractor: Ground Truth vs Baseline MLP")
     ax.legend()
     
     # 确保 figures 文件夹存在并保存高清晰度图片

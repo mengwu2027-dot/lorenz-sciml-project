@@ -79,9 +79,16 @@ def main():
     ax.plot(raw_data[:test_steps, 0], raw_data[:test_steps, 1], raw_data[:test_steps, 2], label='Ground Truth', color='blue', alpha=0.6, lw=1)
     ax.plot(predicted_trajectory[:, 0], predicted_trajectory[:, 1], predicted_trajectory[:, 2], label='MLP Prediction', color='red', alpha=0.8, lw=1, linestyle='--')
     
-    ax.set_title("Lorenz Attractor: Ground Truth vs Baseline MLP")
+   ax.set_title("Lorenz Attractor: Ground Truth vs Baseline MLP")
     ax.legend()
-    plt.show()
+    
+    # 确保 figures 文件夹存在并保存高清晰度图片
+    figures_dir = os.path.join(current_dir, '..', 'figures')
+    os.makedirs(figures_dir, exist_ok=True)
+    save_path = os.path.join(figures_dir, 'mlp_prediction.png')
+    
+    plt.savefig(save_path, dpi=300, bbox_inches='tight')
+    print(f"Plot successfully saved to {save_path}")
 
 if __name__ == "__main__":
     main()

@@ -71,12 +71,8 @@ def main():
     ax = fig.add_subplot(111, projection='3d')
     
     # 绘制对比图
-    ax.plot(x_true, y_true, z_true, color='blue', label='Ground Truth', linewidth=1)
-    ax.plot(x_pred, y_pred, z_pred,
-        linestyle='--',
-        color='red',
-        linewidth=2,
-        label='PINN Prediction')
+    ax.plot(true_xyz[:, 0], true_xyz[:, 1], true_xyz[:, 2], label='Ground Truth', color='blue', alpha=0.6, lw=1)
+    ax.plot(predicted_xyz[:, 0], predicted_xyz[:, 1], predicted_xyz[:, 2], label='PINN Prediction', color='green', alpha=0.8, lw=1.5, linestyle='--')
     
     ax.set_title("Lorenz Attractor: Ground Truth vs PINN")
     ax.legend()
@@ -92,5 +88,3 @@ def main():
 if __name__ == "__main__":
     main()
     
-print(predicted_trajectory[:5])
-print(true_trajectory[:5])

@@ -68,8 +68,8 @@ def main():
     func.eval()
     with torch.no_grad():
         # 我们只给模型最初始的一个点，让它自己顺着时间硬生生积分出长达 1500 步的轨迹！
-        # 这对于 MLP 是绝对不可能完成的任务。
-        test_steps = 800
+        # 这对于 MLP 是绝对不可能完成的任务。步数改动：800-150
+        test_steps = 150
         t_test = t_data[:test_steps]
         y0_test = y_data[0] # 取绝对初始点
         

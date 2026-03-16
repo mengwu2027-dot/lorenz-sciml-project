@@ -71,8 +71,8 @@ def main():
     ax = fig.add_subplot(111, projection='3d')
     
     # 绘制对比图
-   ax.plot(x_true, y_true, z_true, color='blue', label='Ground Truth', linewidth=1)
-   ax.plot(x_pred, y_pred, z_pred,
+    ax.plot(x_true, y_true, z_true, color='blue', label='Ground Truth', linewidth=1)
+    ax.plot(x_pred, y_pred, z_pred,
         linestyle='--',
         color='red',
         linewidth=2,

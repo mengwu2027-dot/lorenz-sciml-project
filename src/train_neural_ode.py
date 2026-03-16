@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 from torchdiffeq import odeint_adjoint as odeint
 from models.neural_ode import LorenzODEFunc
 
-def get_batch(t, true_y, batch_time=20, batch_size=32):
+def get_batch(t, true_y, batch_time=50, batch_size=32):
     """
     【细节】：在混沌系统中，直接对整个长序列进行积分会导致梯度爆炸。
     标准的训练策略是：每次随机截取一小段短时间序列（比如未来 20 步）来进行训练。
@@ -40,8 +40,8 @@ def main():
     optimizer = optim.Adam(func.parameters(), lr=1e-3)
     criterion = nn.MSELoss()
 
-    epochs = 400
-    batch_time = 20 # 每次预测未来 20 步
+    epochs = 2000
+    batch_time = 50 # 每次预测未来 20 步
 
     print("Starting Neural ODE training (this might take a few minutes)...")
     start_time = time.time()
@@ -69,7 +69,7 @@ def main():
     with torch.no_grad():
         # 我们只给模型最初始的一个点，让它自己顺着时间硬生生积分出长达 1500 步的轨迹！
         # 这对于 MLP 是绝对不可能完成的任务。
-        test_steps = 1500
+        test_steps = 800
         t_test = t_data[:test_steps]
         y0_test = y_data[0] # 取绝对初始点
         

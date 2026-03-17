@@ -19,34 +19,59 @@ def main():
     # 【细节】：PINN 拟合长时间跨度的混沌系统非常困难。
     # 学术界的标准做法是先在一个较短的时间窗口内展示 PINN 的极高拟合精度。
     # 我们这里取前 500 个时间步（即 5 秒）的轨迹作为训练域。
+    def main():
+    # ... 前面的路径配置和加载真实数据保持不变 ...
+    
     train_steps = 500
     t_data = torch.tensor(data_dict['t'][:train_steps], dtype=torch.float32).view(-1, 1)
     xyz_data = torch.tensor(data_dict['data'][:train_steps, :], dtype=torch.float32)
     
-    # 2. 初始化模型、优化器与超参数
-    model = PINN(hidden_dim=64, num_layers=6) # 网络比 MLP 稍深一点，增强物理拟合能力
+    # 🌟 【新增关键步骤】：对数据进行标准化计算
+    xyz_mean = xyz_data.mean(dim=0)
+    xyz_std = xyz_data.std(dim=0)
+    # 网络要拟合的目标变成了标准化后的数据 (均值为0，方差为1)
+    xyz_data_normalized = (xyz_data - xyz_mean) / xyz_std
+    
+    # 初始化模型
+    model = PINN(hidden_dim=64, num_layers=6) 
     optimizer = optim.Adam(model.parameters(), lr=1e-3)
     mse_loss = nn.MSELoss()
     
-    epochs = 2000 # PINN 需要更多的 epoch 来平衡数据与物理之间的博弈
-    lambda_physics = 1e-3 # 物理 Loss 的权重系数
+    epochs = 2000 
+    lambda_physics = 1e-3 # 加上标准化后，1e-3 就不会引发爆炸了
 
     print("Starting PINN training...")
     for epoch in range(epochs):
         optimizer.zero_grad()
         
-        # (1) Data Loss: 让模型预测值贴合真实的坐标点
-        xyz_pred = model(t_data)
-        loss_data = mse_loss(xyz_pred, xyz_data)
+        # (1) Data Loss: 让模型去拟合【标准化后】的坐标点
+        xyz_pred_normalized = model(t_data)
+        loss_data = mse_loss(xyz_pred_normalized, xyz_data_normalized)
         
-        # (2) Physics Loss: 将时间 t 输入物理损失函数，计算方程残差
-        # 必须 clone 并开启 requires_grad 以供自动微分计算导数
+        # (2) Physics Loss: 核心修改
         t_physics = t_data.clone().requires_grad_(True)
-        loss_phys = physics_loss(model, t_physics)
+        xyz_pred_norm_phys = model(t_physics)
         
-        # 核心：将数据驱动与物理定律结合
+        # 必须将网络预测出的标准化数据【反向还原】成真实的物理量，才能代入物理方程！
+        x_real = xyz_pred_norm_phys[:, 0:1] * xyz_std[0] + xyz_mean[0]
+        y_real = xyz_pred_norm_phys[:, 1:2] * xyz_std[1] + xyz_mean[1]
+        z_real = xyz_pred_norm_phys[:, 2:3] * xyz_std[2] + xyz_mean[2]
+        
+        # 利用自动微分求导 (对真实的物理量求导)
+        dx_dt = torch.autograd.grad(x_real, t_physics, grad_outputs=torch.ones_like(x_real), create_graph=True)[0]
+        dy_dt = torch.autograd.grad(y_real, t_physics, grad_outputs=torch.ones_like(y_real), create_graph=True)[0]
+        dz_dt = torch.autograd.grad(z_real, t_physics, grad_outputs=torch.ones_like(z_real), create_graph=True)[0]
+        
+        # 代入 Lorenz 方程
+        sigma, rho, beta = 10.0, 28.0, 8.0/3.0
+        f_x = dx_dt - sigma * (y_real - x_real)
+        f_y = dy_dt - (x_real * (rho - z_real) - y_real)
+        f_z = dz_dt - (x_real * y_real - beta * z_real)
+        
+        loss_phys = torch.mean(f_x**2 + f_y**2 + f_z**2)
+        
+        # 组合 Loss
         loss = loss_data + lambda_physics * loss_phys
-        
         loss.backward()
         optimizer.step()
         
@@ -60,12 +85,16 @@ def main():
     print("Generating prediction plot...")
     model.eval()
     with torch.no_grad():
-        # 我们故意让模型预测 600 步（超出了它训练时见过的 500 步范围），
-        # 看看加上物理约束后，它在未知领域的轨迹会不会像 MLP 那样直接崩溃。
         test_steps = 600
         t_test = torch.tensor(data_dict['t'][:test_steps], dtype=torch.float32).view(-1, 1)
-        predicted_xyz = model(t_test).numpy()
+        
+        # 预测画图时，也必须将网络的输出【反向还原】
+        predicted_norm = model(t_test)
+        predicted_xyz = (predicted_norm * xyz_std + xyz_mean).numpy()
+        
         true_xyz = data_dict['data'][:test_steps, :]
+        
+    # ... 后面的 matplotlib 画图代码保持不变 ...
         
     fig = plt.figure(figsize=(10, 8))
     ax = fig.add_subplot(111, projection='3d')

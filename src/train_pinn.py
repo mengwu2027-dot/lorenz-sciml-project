@@ -106,20 +106,20 @@ def main():
     ax.plot(predicted_xyz[:200, 0], predicted_xyz[:200, 1], predicted_xyz[:200, 2], 
             label='PINN (Training Region)', color='green', lw=2, linestyle='--')
             
-    # 2. 未知的未来区域 (200步 到 400步)，用红色实线展示它的外推能力！
+    # 2. 未知的未来区域 (200步 到 400步)，用红色实线展示它的外推能力
     ax.plot(predicted_xyz[200:, 0], predicted_xyz[200:, 1], predicted_xyz[200:, 2], 
-            label='PINN (Future Prediction!)', color='red', lw=2)
+            label='PINN (Future Prediction)', color='red', lw=2)
     
     # 画一个点，标记“现在”时刻（也就是数据用完的分界点）
     ax.scatter(*predicted_xyz[199, :], color='black', s=50, label='Prediction Start', zorder=5)
 
-    ax.set_title("Lorenz Attractor: PINN Extrapolation Test")
+    ax.set_title("Lorenz Attractor: Ground Truth vs PINN")
     ax.legend()
     
     # 保存图片
     figures_dir = os.path.join(current_dir, '..', 'figures')
     os.makedirs(figures_dir, exist_ok=True)
-    save_path = os.path.join(figures_dir, 'pinn_extrapolation.png')
+    save_path = os.path.join(figures_dir, 'pinn_prediction.png')
     plt.savefig(save_path, dpi=300, bbox_inches='tight')
     print(f"Plot successfully saved to {save_path}")
 

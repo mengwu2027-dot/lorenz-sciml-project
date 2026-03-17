@@ -21,7 +21,7 @@ def main():
     # 我们这里取前 500 个时间步（即 5 秒）的轨迹作为训练域。
    
     
-    train_steps = 100
+    train_steps = 200
     t_data = torch.tensor(data_dict['t'][:train_steps], dtype=torch.float32).view(-1, 1)
     xyz_data = torch.tensor(data_dict['data'][:train_steps, :], dtype=torch.float32)
     
@@ -36,7 +36,7 @@ def main():
     optimizer = optim.Adam(model.parameters(), lr=1e-3)
     mse_loss = nn.MSELoss()
     
-    epochs = 8000 
+    epochs = 10000 
     lambda_physics = 1e-3 # 加上标准化后，1e-3 就不会引发爆炸了
 
     print("Starting PINN training...")

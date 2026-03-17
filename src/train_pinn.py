@@ -19,8 +19,7 @@ def main():
     # 【细节】：PINN 拟合长时间跨度的混沌系统非常困难。
     # 学术界的标准做法是先在一个较短的时间窗口内展示 PINN 的极高拟合精度。
     # 我们这里取前 500 个时间步（即 5 秒）的轨迹作为训练域。
-    def main():
-    # ... 前面的路径配置和加载真实数据保持不变 ...
+   
     
     train_steps = 500
     t_data = torch.tensor(data_dict['t'][:train_steps], dtype=torch.float32).view(-1, 1)

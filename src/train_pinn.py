@@ -80,36 +80,46 @@ def main():
             
     print("Training complete!")
 
-    # 3. 泛化测试与可视化
-    print("Generating prediction plot...")
+   # 3. 泛化测试与可视化 (加入外推预测)
+    print("Generating extrapolation prediction plot...")
     model.eval()
     with torch.no_grad():
-        test_steps = 200
+        # 【修改这里】：让测试步长达到 400 步 (包含 200步已知 + 200步未知)
+        test_steps = 400 
         t_test = torch.tensor(data_dict['t'][:test_steps], dtype=torch.float32).view(-1, 1)
         
-        # 预测画图时，也必须将网络的输出【反向还原】
+        # 网络的预测及反归一化
         predicted_norm = model(t_test)
         predicted_xyz = (predicted_norm * xyz_std + xyz_mean).numpy()
         
         true_xyz = data_dict['data'][:test_steps, :]
         
-    # ... 后面的 matplotlib 画图代码保持不变 ...
-        
-    fig = plt.figure(figsize=(10, 8))
+    fig = plt.figure(figsize=(12, 10))
     ax = fig.add_subplot(111, projection='3d')
     
-    # 绘制对比图
-    ax.plot(true_xyz[:, 0], true_xyz[:, 1], true_xyz[:, 2], label='Ground Truth', color='blue', alpha=0.6, lw=1)
-    ax.plot(predicted_xyz[:, 0], predicted_xyz[:, 1], predicted_xyz[:, 2], label='PINN Prediction', color='green', alpha=0.8, lw=1.5, linestyle='--')
+    # 画出前 400 步真实的蓝线
+    ax.plot(true_xyz[:, 0], true_xyz[:, 1], true_xyz[:, 2], 
+            label='Ground Truth (400 steps)', color='blue', alpha=0.4, lw=1)
+            
+    # 【高光时刻】：区分训练区和预测区
+    # 1. 训练过的区域 (前 200 步)，用绿色虚线
+    ax.plot(predicted_xyz[:200, 0], predicted_xyz[:200, 1], predicted_xyz[:200, 2], 
+            label='PINN (Training Region)', color='green', lw=2, linestyle='--')
+            
+    # 2. 未知的未来区域 (200步 到 400步)，用红色实线展示它的外推能力！
+    ax.plot(predicted_xyz[200:, 0], predicted_xyz[200:, 1], predicted_xyz[200:, 2], 
+            label='PINN (Future Prediction!)', color='red', lw=2)
     
-    ax.set_title("Lorenz Attractor: Ground Truth vs PINN")
+    # 画一个点，标记“现在”时刻（也就是数据用完的分界点）
+    ax.scatter(*predicted_xyz[199, :], color='black', s=50, label='Prediction Start', zorder=5)
+
+    ax.set_title("Lorenz Attractor: PINN Extrapolation Test")
     ax.legend()
     
-    # 自动保存到 figures 文件夹
+    # 保存图片
     figures_dir = os.path.join(current_dir, '..', 'figures')
     os.makedirs(figures_dir, exist_ok=True)
-    save_path = os.path.join(figures_dir, 'pinn_prediction.png')
-    
+    save_path = os.path.join(figures_dir, 'pinn_extrapolation.png')
     plt.savefig(save_path, dpi=300, bbox_inches='tight')
     print(f"Plot successfully saved to {save_path}")
 

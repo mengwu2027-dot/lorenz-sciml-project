@@ -3,25 +3,25 @@ import torch.nn as nn
 
 class LorenzODEFunc(nn.Module):
     """
-    Neural ODE 的核心：用神经网络参数化连续时间的导数
-    即学习 dh/dt = f_theta(t, h)
+    The Core of Neural ODEs: Parameterizing Continuous-Time Derivatives Using Neural Networks
+    — That is, Learning dh/dt = f_theta(t, h)
     """
     def __init__(self, hidden_dim=64):
         super(LorenzODEFunc, self).__init__()
         
-        # 这是一个多层感知机，用来逼近 Lorenz 系统的右侧真实物理方程
+        # This is a multilayer perceptron used to approximate the true physical equations on the right-hand side of the Lorenz system.
         self.net = nn.Sequential(
             nn.Linear(3, hidden_dim),
-            nn.Tanh(), # 依然使用平滑的 Tanh
+            nn.Tanh(), # Still using the smooth Tanh.
             nn.Linear(hidden_dim, hidden_dim),
             nn.Tanh(),
-            nn.Linear(hidden_dim, hidden_dim), # 稍微加深网络结构以捕捉混沌复杂性
+            nn.Linear(hidden_dim, hidden_dim), # Slightly deepen the network structure to capture chaotic complexity.
             nn.Tanh(),
             nn.Linear(hidden_dim, 3)
         )
         
-        # 初始化权重：在 Neural ODE 中，如果初始导数太大，
-        # 会导致积分器步长变得极小，训练极其缓慢。因此用较小的方差初始化。
+        # Weight Initialization: In Neural ODEs, if the initial derivative is too large,
+        # the integrator step size would become extremely small, resulting in extremely slow training. Therefore, a smaller variance is used for initialization.
         for m in self.net.modules():
             if isinstance(m, nn.Linear):
                 nn.init.normal_(m.weight, mean=0, std=0.1)
@@ -29,20 +29,20 @@ class LorenzODEFunc(nn.Module):
 
     def forward(self, t, y):
         """
-        torchdiffeq 库的硬性要求：forward 必须同时接收 t 和 y。
-        t: 当前时间 (标量)
-        y: 当前状态 [batch_size, 3]
-        返回: 预测的状态变化率 [batch_size, 3]
+        A strict requirement of the `torchdiffeq` library is that the `forward` method must accept both `t` and `y`.
+        t: Current time (scalar)
+        y: Current state [batch_size, 3]
+        Returns: Predicted rate of change of the state [batch_size, 3]
         """
-        # 因为 Lorenz 是自治系统（方程右侧不显式包含时间 t），
-        # 所以我们实际上只将状态 y 输入给神经网络。
+        # Since the Lorenz system is an autonomous system (the right-hand side of the equations does not explicitly contain time *t*),
+        # we effectively feed only the state *y* into the neural network.
         return self.net(y)
 
-# 快速测试代码
+# Quickly Test Code
 if __name__ == "__main__":
     func = LorenzODEFunc()
     dummy_t = torch.tensor(0.0)
-    dummy_y = torch.randn(10, 3) # 模拟 10 个批次的初始状态
+    dummy_y = torch.randn(10, 3) # Simulate the initial states of 10 batches.
     dy_dt = func(dummy_t, dummy_y)
     
     print(f"Input state shape: {dummy_y.shape}")

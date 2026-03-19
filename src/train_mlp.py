@@ -5,51 +5,51 @@ import torch.optim as optim
 import numpy as np
 import matplotlib.pyplot as plt
 
-# 从你刚刚写的模型文件中引入 MLP
+# Import MLP from the model file.
 from models.mlp_model import MLP
 
 def load_data(data_path):
-    """加载生成好的真实数据，并构造输入-输出对"""
+    """Load the generated real data and construct input-output pairs."""
     data_dict = np.load(data_path, allow_pickle=True).item()
     data = data_dict['data']
     
-    # 构造 (X, Y) 对：X 是当前步，Y 是紧接着的下一步
+    # Construct the pair (X, Y), where X is the current step and Y is the immediately following step.
     X = data[:-1, :]
     Y = data[1:, :]
     
-    # 转换为 PyTorch 的 Tensor
+    # Convert to PyTorch Tensor
     X_tensor = torch.tensor(X, dtype=torch.float32)
     Y_tensor = torch.tensor(Y, dtype=torch.float32)
     return X_tensor, Y_tensor, data
 
 def main():
-    # 1. 设置路径与超参数
+    # 1. Set Paths and Hyperparameters
     current_dir = os.path.dirname(os.path.abspath(__file__))
     data_path = os.path.join(current_dir, '..', 'data', 'lorenz_ground_truth.npy')
     epochs = 1000
     learning_rate = 1e-3
 
-    # 2. 准备数据
+    # 2. Prepare Data
     print("Loading data...")
     X, Y, raw_data = load_data(data_path)
     
-    # 3. 初始化模型、损失函数和优化器
+    # 3. Initialize the model, loss function, and optimizer.
     model = MLP(input_dim=3, hidden_dim=64, output_dim=3, num_layers=3)
-    criterion = nn.MSELoss() # 均方误差损失
+    criterion = nn.MSELoss() # Mean Squared Error Loss
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
-    # 4. 训练循环
+    # 4. Training Loop
     print("Starting training...")
     for epoch in range(epochs):
         optimizer.zero_grad()
         
-        # 前向传播
+        # Forward Propagation
         predictions = model(X)
         
-        # 计算 Loss
+        # Calculate Loss
         loss = criterion(predictions, Y)
         
-        # 反向传播与优化
+        # Backpropagation and Optimization
         loss.backward()
         optimizer.step()
         
@@ -58,22 +58,22 @@ def main():
 
     print("Training complete!")
 
-    # 5. 测试与可视化 (自回归预测)
-    # 我们给定一个初始点，让 MLP 自己连续预测未来的轨迹，看看它会不会发散
+    # 5. Testing and Visualization (Autoregressive Forecasting)
+    # We provide an initial point and let the MLP continuously predict the future trajectory on its own to see if it diverges.
     print("Simulating future trajectory...")
     test_steps = 2000
-    current_state = X[0:1] # 取第一个时间步作为初始状态
+    current_state = X[0:1] # Take the first time step as the initial state.
     predicted_trajectory = [current_state.detach().numpy().flatten()]
 
     with torch.no_grad():
         for _ in range(test_steps - 1):
             next_state = model(current_state)
             predicted_trajectory.append(next_state.numpy().flatten())
-            current_state = next_state # 将预测结果作为下一步的输入 (自回归)
+            current_state = next_state # Use the prediction results as input for the next step (autoregression).
 
     predicted_trajectory = np.array(predicted_trajectory)
 
-    # 画图对比前 2000 步
+    # Plot and compare the first 2,000 steps.
     fig = plt.figure(figsize=(10, 8))
     ax = fig.add_subplot(111, projection='3d')
     ax.plot(raw_data[:test_steps, 0], raw_data[:test_steps, 1], raw_data[:test_steps, 2], label='Ground Truth', color='blue', alpha=0.6, lw=1)
@@ -82,7 +82,7 @@ def main():
     ax.set_title("Lorenz Attractor: Ground Truth vs Baseline MLP")
     ax.legend()
     
-    # 确保 figures 文件夹存在并保存高清晰度图片
+    # Ensure that the `figures` folder exists and save high-resolution images.
     figures_dir = os.path.join(current_dir, '..', 'figures')
     os.makedirs(figures_dir, exist_ok=True)
     save_path = os.path.join(figures_dir, 'mlp_prediction.png')

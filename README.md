@@ -22,7 +22,7 @@ To run the scripts, you need a Python environment with PyTorch and the `torchdif
 
 Install the required dependencies:
 ```bash
-pip install torch numpy matplotlib torchdiffeq
+pip install -r requirements.txt
 ```
 
 ## How to Run the Experiments

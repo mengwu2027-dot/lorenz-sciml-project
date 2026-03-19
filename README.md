@@ -1,6 +1,6 @@
 # Learning Chaotic Dynamics of the Lorenz System with SciML
 
-This repository contains the code, data, and final report for my Scientific Machine Learning final project. The project evaluates the efficacy of Neural Ordinary Differential Equations (Neural ODEs) and Physics-Informed Neural Networks (PINNs) in learning and forecasting the chaotic dynamics of the Lorenz system, compared against a baseline Multi-Layer Perceptron (MLP).
+This repository contains the code, data, and final report for my EE 495 Scientific Machine Learning final project. The project evaluates the efficacy of Neural Ordinary Differential Equations (Neural ODEs) and Physics-Informed Neural Networks (PINNs) in learning and forecasting the chaotic dynamics of the Lorenz system, compared against a baseline Multi-Layer Perceptron (MLP).
 
 *Please refer to the included PDF report for detailed methodology, mathematical formulations, and in-depth discussion.*
 

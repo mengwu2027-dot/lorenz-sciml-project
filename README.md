@@ -1,13 +1,8 @@
-# lorenz-sciml-project
-Scientific Machine Learning project: Learning the Lorenz system with Neural ODEs and PINNs
-
-## Installation
-Install the required Python libraries using:
-pip install -r requirements.txt
-
 # Learning Chaotic Dynamics of the Lorenz System with SciML
 
 This repository contains the code, data, and final report for my Scientific Machine Learning final project. The project evaluates the efficacy of Neural Ordinary Differential Equations (Neural ODEs) and Physics-Informed Neural Networks (PINNs) in learning and forecasting the chaotic dynamics of the Lorenz system, compared against a baseline Multi-Layer Perceptron (MLP).
+
+*Please refer to the included PDF report for detailed methodology, mathematical formulations, and in-depth discussion.*
 
 ## Repository Structure
 
@@ -28,22 +23,3 @@ To run the scripts, you need a Python environment with PyTorch and the `torchdif
 Install the required dependencies:
 ```bash
 pip install torch numpy matplotlib torchdiffeq
-
-Please refer to the PDF report for detailed methodology and discussion.
-
-How to Run the Experiments
-Navigate to the project root directory and execute the training scripts. Each script will automatically train the model, run the autoregressive forecasting test, and save the resulting visualization to the figures/ directory.
-1. Baseline MLP (Demonstrates Catastrophic Divergence):
-python src/train_mlp.py
-2. PINN (Demonstrates Overfitting and Extrapolation Failure):
-python src/train_pinn.py
-3. Neural ODE (Demonstrates Limit Cycle Collapse):
-python src/train_neural_ode.py
-Results Overview
-Our experiments highlight the inherent challenges of modeling chaotic systems:
-
-MLP: Fails to respect continuous dynamics, leading to rapid, non-physical divergence.
-
-PINN: Successfully interpolates the training region but fails to extrapolate into the future due to chaotic sensitivity.
-
-Neural ODE: Successfully constrains predictions to the physical manifold but eventually collapses into a stable limit cycle due to the limitations of MSE loss in chaotic regimes.

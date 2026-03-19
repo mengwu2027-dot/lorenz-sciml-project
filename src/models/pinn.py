@@ -3,24 +3,24 @@ import torch.nn as nn
 
 class PINN(nn.Module):
     """
-    连续时间物理约束神经网络 (Continuous-time PINN)
-    输入: 时间 t
-    输出: 预测的状态 (x, y, z)
+    Continuous-time PINN
+    Input: Time t
+    Output: Predicted state (x, y, z)
     """
     def __init__(self, hidden_dim=64, num_layers=4):
         super(PINN, self).__init__()
         
         layers = []
-        # 输入层 (输入维度为 1，即时间 t)
+        # Input Layer (Input dimension is 1, i.e., time t)
         layers.append(nn.Linear(1, hidden_dim))
         layers.append(nn.Tanh())
         
-        # 隐藏层
+        # Hidden Layer
         for _ in range(num_layers - 2):
             layers.append(nn.Linear(hidden_dim, hidden_dim))
             layers.append(nn.Tanh())
             
-        # 输出层 (输出维度为 3，即 x, y, z)
+        # Output Layer (Output dimension is 3, i.e., x, y, z)
         layers.append(nn.Linear(hidden_dim, 3))
         
         self.net = nn.Sequential(*layers)
@@ -33,7 +33,7 @@ def physics_loss(model, t, sigma=10.0, rho=28.0, beta=8.0/3.0):
     xyz = model(t)
     x, y, z = xyz[:, 0:1], xyz[:, 1:2], xyz[:, 2:3]
     
-    # 【核心修复】：分别对 x, y, z 求导！返回形状都是 (N, 1)
+    # Differentiate with respect to x, y, and z, respectively. The returned shapes are all (N, 1).
     dx_dt = torch.autograd.grad(x, t, grad_outputs=torch.ones_like(x), create_graph=True)[0]
     dy_dt = torch.autograd.grad(y, t, grad_outputs=torch.ones_like(y), create_graph=True)[0]
     dz_dt = torch.autograd.grad(z, t, grad_outputs=torch.ones_like(z), create_graph=True)[0]
@@ -45,10 +45,10 @@ def physics_loss(model, t, sigma=10.0, rho=28.0, beta=8.0/3.0):
     loss_p = torch.mean(f_x**2 + f_y**2 + f_z**2)
     return loss_p
 
-# 快速测试代码
+# Quickly Test Code
 if __name__ == "__main__":
     model = PINN()
-    # 随机生成一个时间点
+    # Generate a random point in time.
     dummy_t = torch.rand(10, 1) 
     out = model(dummy_t)
     p_loss = physics_loss(model, dummy_t)

@@ -23,7 +23,7 @@ To run the scripts, you need a Python environment with PyTorch and the `torchdif
 Install the required dependencies:
 ```bash
 pip install torch numpy matplotlib torchdiffeq
-
+```
 
 ## How to Run the Experiments
 
@@ -32,21 +32,22 @@ Navigate to the project root directory and execute the training scripts. Each sc
 **1. Baseline MLP (Demonstrates Catastrophic Divergence):**
 ```bash
 python src/train_mlp.py
+```
 
 **2. PINN (Demonstrates Overfitting and Extrapolation Failure):**
 ```bash
 python src/train_pinn.py
+```
 
 **3. Neural ODE (Demonstrates Limit Cycle Collapse):**
 ```bash
 python src/train_neural_ode.py
+```
 
+## Results Overview
 
-Results Overview
 Our experiments highlight the inherent challenges of modeling chaotic systems:
 
-MLP: Fails to respect continuous dynamics, leading to rapid, non-physical divergence.
-
-PINN: Successfully interpolates the training region but fails to extrapolate into the future due to chaotic sensitivity.
-
-Neural ODE: Successfully constrains predictions to the physical manifold but eventually collapses into a stable limit cycle due to the limitations of MSE loss in chaotic regimes.
+- **MLP:** Fails to respect continuous dynamics, leading to rapid, non-physical divergence.
+- **PINN:** Successfully interpolates the training region but fails to extrapolate into the future due to chaotic sensitivity.
+- **Neural ODE:** Successfully constrains predictions to the physical manifold but eventually collapses into a stable limit cycle due to the limitations of MSE loss in chaotic regimes.

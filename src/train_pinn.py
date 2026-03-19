@@ -25,7 +25,7 @@ def main():
     t_data = torch.tensor(data_dict['t'][:train_steps], dtype=torch.float32).view(-1, 1)
     xyz_data = torch.tensor(data_dict['data'][:train_steps, :], dtype=torch.float32)
     
-    # 🌟 【新增关键步骤】：对数据进行标准化计算
+    # 【新增关键步骤】：对数据进行标准化计算
     xyz_mean = xyz_data.mean(dim=0)
     xyz_std = xyz_data.std(dim=0)
     # 网络要拟合的目标变成了标准化后的数据 (均值为0，方差为1)
@@ -101,7 +101,7 @@ def main():
     ax.plot(true_xyz[:, 0], true_xyz[:, 1], true_xyz[:, 2], 
             label='Ground Truth (400 steps)', color='blue', alpha=0.4, lw=1)
             
-    # 【高光时刻】：区分训练区和预测区
+    # 区分训练区和预测区
     # 1. 训练过的区域 (前 200 步)，用绿色虚线
     ax.plot(predicted_xyz[:200, 0], predicted_xyz[:200, 1], predicted_xyz[:200, 2], 
             label='PINN (Training Region)', color='green', lw=2, linestyle='--')

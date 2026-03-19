@@ -23,3 +23,20 @@ To run the scripts, you need a Python environment with PyTorch and the `torchdif
 Install the required dependencies:
 ```bash
 pip install torch numpy matplotlib torchdiffeq
+
+
+## How to Run the Experiments
+
+Navigate to the project root directory and execute the training scripts. Each script will automatically train the model, run the autoregressive forecasting test, and save the resulting visualization to the `figures/` directory.
+
+**1. Baseline MLP (Demonstrates Catastrophic Divergence):**
+```bash
+python src/train_mlp.py
+
+**1. Baseline MLP (Demonstrates Catastrophic Divergence):**
+```bash
+python src/train_mlp.py
+
+**3. Neural ODE (Demonstrates Limit Cycle Collapse):**
+```bash
+python src/train_neural_ode.py

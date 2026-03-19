@@ -4,15 +4,15 @@ from lorenz_solver import generate_lorenz_data
 
 def main():
     print("Starting to generate Lorenz system data...")
-    # 调用你刚才写的 solver 生成数据
+    # Call lorenz_solver.py to generate data.
     t, data = generate_lorenz_data()
     
-    # 找到项目根目录下的 data 文件夹
+    # Locate the `data` folder in the project root directory.
     current_dir = os.path.dirname(os.path.abspath(__file__))
     data_dir = os.path.join(current_dir, '..', 'data')
     os.makedirs(data_dir, exist_ok=True)
     
-    # 将时间 t 和轨迹 data 保存为一个 .npy 文件
+    # Save time t and trajectory data as an .npy file.
     save_path = os.path.join(data_dir, 'lorenz_ground_truth.npy')
     np.save(save_path, {'t': t, 'data': data})
     
